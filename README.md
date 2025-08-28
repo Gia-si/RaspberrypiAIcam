@@ -1,126 +1,111 @@
-# 📸 EMBEDED_AICAM  
+# EMBEDED_AICAM
+*** 
+## Stream Camera C270 trên máy tính nhúng raspberry pi 4 model B 4GB với model yolov11s bằng Flask và up ảnh lên google drive 
+***
+## Phần cứng cần chuẩn bị:
+### 1. Raspberry pi 4 Model B( hoặc các loại máy tính nhúng khác như jetson nano, raspberry pi 5, .... )
+### 2. Camera c270(hoặc các loại camera usb có thể tích hợp)
+### 3. Một thẻ nhớ SD tối thiểu 8GB
+### 4. Một bộ nguồn tối thiểu 5VDC 3A
+***
+## Tiến hành:
+#### 1. tải các thư viện trên rapsberri pi 4 bao gồm:
+#### Ultralytics=8.3.78, google-api-python-client, google-auth-httplib2, google-auth-oauthlib, opencv2, flask.
+#### 2. Vào Google console cloud → APIs & Services → Enabled APIs & services → Enable APIs → bật Google Drive API → OAuth consent screen → External → Create → Điền: App name, User support email, Developer contact email → Save and continue → Credentials → Create credentials → OAuth client ID  → Application type: Desktop app → Create → Download JSON
+#### 3. chạy file uptodrive để lấy token ở lần đầu tiên
+#### 4. đẩy các file detectwebv3.py và uptodrive.py lên raspberry pi bằng lệnh scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
+- ex: scp detectwebv3.py pi@192.168.1.20:/home/pi/
+#### 5. tạo service: sudo nano /etc/systemd/system/myservice.service và thêm code này vào:
+<img width="527" height="315" alt="image" src="https://github.com/user-attachments/assets/b64dc1f9-6ea8-46d6-ab32-14f2423489f8" />
 
-## 🚀 Stream Camera C270 trên Raspberry Pi 4 (4GB) với YOLOv11s bằng Flask và upload ảnh lên Google Drive  
+- [Unit]
+-Description=Test autorun Python script
+-After=network.target
 
----
+-[Service]
+-WorkingDirectory=/home/pi/yolo
+-ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
+-Environment="PYTHONPATH=/home/pi/yolo"
+-Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
+-Restart=always
+-User=pi
 
-## 🛠️ Phần cứng cần chuẩn bị
-1. **Raspberry Pi 4 Model B 4GB** (hoặc các SBC khác: Jetson Nano, Raspberry Pi 5, …)  
-2. **Camera Logitech C270** (hoặc camera USB tương thích)  
-3. **Thẻ nhớ SD ≥ 8GB**  
-4. **Nguồn 5VDC ≥ 3A**  
+-[Install]
+-WantedBy=multi-user.target
+##### giải thích:
+-📌 Phần [Unit]
+-[Unit]
+-Description=Test autorun Python script
+-After=network.target
 
----
 
-## ⚙️ Các bước thực hiện
+-Description → mô tả service, chỉ để bạn dễ phân biệt khi chạy systemctl list-units.
 
-### 1. Cài đặt thư viện trên Raspberry Pi
-Các thư viện cần thiết:  
+-After=network.target → chỉ ra rằng service sẽ chạy sau khi mạng khởi động xong. Cái này quan trọng nếu script cần WiFi hoặc Internet.
 
-```bash
-pip install ultralytics==8.3.78
-pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
-pip install opencv-python flask
-2. Cấu hình Google Drive API
-Truy cập Google Console Cloud → APIs & Services → Enabled APIs & services
+-👉 Chỗ quan trọng: After rất hữu ích cho các script cần kết nối mạng/MQTT. Nếu không cần, có thể bỏ.
 
-Chọn Enable APIs → Bật Google Drive API
+-📌 Phần [Service]
+-WorkingDirectory=/home/pi/yolo
 
-Vào OAuth consent screen → Chọn External → Create
 
-Điền thông tin: App name, User support email, Developer contact email → Save and continue
+-Thư mục hiện tại khi chạy service.
 
-Vào Credentials → Create credentials → OAuth client ID
+-Quan trọng vì nếu script đọc/ghi file mà không dùng đường dẫn tuyệt đối thì sẽ lỗi nếu không set.
 
-Application type: Desktop app → Create
+-ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
 
-Download JSON về để sử dụng
 
-3. Lấy token lần đầu
-Chạy file uptodrive.py để tạo token kết nối Google Drive.
+-Đây là lệnh chính để chạy script.
 
-4. Upload code lên Raspberry Pi
-Dùng scp để đẩy file từ máy tính sang Pi:
+-venv/bin/python nghĩa là chạy bằng Python trong virtual environment (venv), thay vì Python hệ thống.
 
-bash
-Copy code
-scp detectwebv3.py pi@<IP_Raspberry>:/home/pi/
-scp uptodrive.py pi@<IP_Raspberry>:/home/pi/
-Ví dụ:
+-Quan trọng vì đảm bảo script chạy đúng môi trường, đúng thư viện đã cài trong venv.
 
-bash
-Copy code
-scp detectwebv3.py pi@192.168.1.20:/home/pi/
-5. Tạo service tự động chạy khi boot
-Tạo file service:
+-Environment="PYTHONPATH=/home/pi/yolo"
 
-bash
-Copy code
-sudo nano /etc/systemd/system/test_autorun.service
-Thêm nội dung sau:
 
-ini
-Copy code
-[Unit]
-Description=Test autorun Python script
-After=network.target
+-Thiết lập biến môi trường PYTHONPATH, để Python biết tìm module trong /home/pi/yolo.
 
-[Service]
-WorkingDirectory=/home/pi/yolo
-ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
-Environment="PYTHONPATH=/home/pi/yolo"
-Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
-Restart=always
-User=pi
+-Quan trọng nếu bạn import module từ project của mình.
 
-[Install]
-WantedBy=multi-user.target
-📖 Giải thích service
-🔹 [Unit]
-Description → mô tả service
+-Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
 
-After=network.target → chạy sau khi mạng khởi động (cần nếu script dùng WiFi/MQTT)
 
-🔹 [Service]
-WorkingDirectory → thư mục chứa script
+-Ghi đè PATH, để đảm bảo khi script gọi lệnh ngoài (ví dụ ffmpeg, git, …) thì nó dùng phiên bản trong venv trước tiên.
 
-ExecStart → lệnh chạy script (dùng Python trong venv)
+-Quan trọng nếu bạn cần công cụ đã cài riêng trong venv.
 
-Environment="PYTHONPATH=..." → thêm đường dẫn module
+-Restart=always
 
-Environment="PATH=..." → ưu tiên công cụ trong venv
 
-Restart=always → tự khởi động lại khi crash
+-Nếu script bị crash thì service sẽ tự khởi động lại.
 
-User=pi → chạy dưới user pi (không phải root)
+-Đây là điểm rất quan trọng để đảm bảo script luôn sống.
 
-🔹 [Install]
-WantedBy=multi-user.target → cho phép service chạy khi boot xong
+-User=pi
 
-✅ Quản lý service
-1. Reload để nhận service mới
-bash
-Copy code
-sudo systemctl daemon-reload
-2. Chạy service ngay lập tức (không cần reboot)
-bash
-Copy code
-sudo systemctl start test_autorun.service
-3. Kiểm tra trạng thái service
-bash
-Copy code
-sudo systemctl status test_autorun.service
-4. Xem log lỗi chi tiết (nếu failed)
-bash
-Copy code
-sudo journalctl -u test_autorun.service -n 50 --no-pager
-📌 Bảng lệnh tóm tắt quản lý service
-Lệnh	Chức năng
-sudo systemctl start test_autorun.service	Chạy service
-sudo systemctl stop test_autorun.service	Dừng service
-sudo systemctl restart test_autorun.service	Khởi động lại service
-sudo systemctl enable test_autorun.service	Cho phép tự chạy khi boot
-sudo systemctl disable test_autorun.service	Tắt tự chạy khi boot
-systemctl status test_autorun.service	Kiểm tra trạng thái
-journalctl -u test_autorun.service -f	Xem log realtime
 
+-Chạy service dưới quyền user pi, thay vì root.
+
+-Quan trọng vì chạy dưới root có thể gây lỗi quyền hoặc không an toàn.
+
+-📌 Phần [Install]
+-[Install]
+-WantedBy=multi-user.target
+
+
+-Xác định khi nào service được kích hoạt.
+
+-multi-user.target = chạy ở chế độ multi-user (mặc định sau khi boot xong).
+
+-Đây là điều làm cho service tự động chạy khi reboot
+#### kiểm tra:
+- 1. reload lại systemd để nó nhận service mới: sudo systemctl daemon-reload  
+
+- 2. chạy service ngay lập tức (không cần reboot): sudo systemctl start test_autorun.service  
+
+- 3. kiểm tra trạng thái: sudo systemctl status test_autorun.service
+  
+- 4.Nếu thấy failed thì dùng thêm lệnh này để coi log lỗi chi tiết:
+-sudo journalctl -u test_autorun.service -n 50 --no-pager
