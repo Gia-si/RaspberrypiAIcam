@@ -11,8 +11,9 @@
 ## Tiến hành:
 ### 1. tải các thư viện trên rapsberri pi 4 bao gồm:
 #### Ultralytics=8.3.78, google-api-python-client, google-auth-httplib2, google-auth-oauthlib, opencv2, flask.
-#### 2. đẩy các file trong github lên raspberry pi bằng lệnh
-#### 3. scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
-- ex: scp credentials.json pi@192.168.1.20:/home/pi/
+
+#### 2. đẩy các file detectwebv3.py và uptodrive.py lên raspberry pi bằng lệnh scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
+- ex: scp detectwebv3.py pi@192.168.1.20:/home/pi/
+### 3. Vào Google console cloud → APIs & Services → Enabled APIs & services → Enable APIs → bật Google Drive API → OAuth consent screen → External → Create.
 
 
