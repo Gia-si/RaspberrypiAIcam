@@ -14,6 +14,6 @@
 
 #### 2. đẩy các file detectwebv3.py và uptodrive.py lên raspberry pi bằng lệnh scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
 - ex: scp detectwebv3.py pi@192.168.1.20:/home/pi/
-### 3. Vào Google console cloud → APIs & Services → Enabled APIs & services → Enable APIs → bật Google Drive API → OAuth consent screen → External → Create.
+### 3. Vào Google console cloud → APIs & Services → Enabled APIs & services → Enable APIs → bật Google Drive API → OAuth consent screen → External → Create → Điền: App name, User support email, Developer contact email → Save and continue → Credentials → Create credentials → OAuth client ID  → Application type: Desktop app → Create → Download JSON
 
 
