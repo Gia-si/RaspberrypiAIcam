@@ -110,5 +110,5 @@ WantedBy=multi-user.target
 
 - 3. kiểm tra trạng thái: sudo systemctl status test_autorun.service
   
-- 4.Nếu thấy failed thì dùng thêm lệnh này để coi log lỗi chi tiết:
+- 4. Nếu thấy failed thì dùng thêm lệnh này để coi log lỗi chi tiết:
 -sudo journalctl -u test_autorun.service -n 50 --no-pager
