@@ -1,3 +1,5 @@
+#EMBEDED_AICAM
+---
 # Hướng Dẫn Streaming Camera Logitech C270 với YOLOv11s trên Raspberry Pi 4 bằng Flask và Upload Ảnh lên Google Drive
 
 ---
