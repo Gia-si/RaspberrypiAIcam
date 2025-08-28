@@ -18,7 +18,7 @@
 #### 5. tạo service: sudo nano /etc/systemd/system/myservice.service và thêm code này vào:
 <img width="527" height="315" alt="image" src="https://github.com/user-attachments/assets/b64dc1f9-6ea8-46d6-ab32-14f2423489f8" />
 
-- [Unit]
+-[Unit]
 -Description=Test autorun Python script
 -After=network.target
 
@@ -32,6 +32,8 @@
 
 -[Install]
 -WantedBy=multi-user.target
+
+
 ##### giải thích:
 -📌 Phần [Unit]
 -[Unit]
