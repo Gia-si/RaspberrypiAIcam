@@ -1,22 +1,83 @@
-# EMBEDED_AICAM
-*** 
-## Stream Camera C270 trên máy tính nhúng raspberry pi 4 model B 4GB với model yolov11s bằng Flask và up ảnh lên google drive 
-***
-## Phần cứng cần chuẩn bị:
-### 1. Raspberry pi 4 Model B( hoặc các loại máy tính nhúng khác như jetson nano, raspberry pi 5, .... )
-### 2. Camera c270(hoặc các loại camera usb có thể tích hợp)
-### 3. Một thẻ nhớ SD tối thiểu 8GB
-### 4. Một bộ nguồn tối thiểu 5VDC 3A
-***
-## Tiến hành:
-#### 1. tải các thư viện trên rapsberri pi 4 bao gồm:
-#### Ultralytics=8.3.78, google-api-python-client, google-auth-httplib2, google-auth-oauthlib, opencv2, flask.
-#### 2. Vào Google console cloud → APIs & Services → Enabled APIs & services → Enable APIs → bật Google Drive API → OAuth consent screen → External → Create → Điền: App name, User support email, Developer contact email → Save and continue → Credentials → Create credentials → OAuth client ID  → Application type: Desktop app → Create → Download JSON
-#### 3. chạy file uptodrive để lấy token ở lần đầu tiên
-#### 4. đẩy các file detectwebv3.py và uptodrive.py lên raspberry pi bằng lệnh scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
-- ex: scp detectwebv3.py pi@192.168.1.20:/home/pi/
-#### 5. tạo service: sudo nano /etc/systemd/system/myservice.service và thêm code này vào:
-<img width="527" height="315" alt="image" src="https://github.com/user-attachments/assets/b64dc1f9-6ea8-46d6-ab32-14f2423489f8" />
+# Hướng Dẫn Streaming Camera Logitech C270 với YOLOv11s trên Raspberry Pi 4 bằng Flask và Upload Ảnh lên Google Drive
+
+---
+
+## 1. Phần cứng cần chuẩn bị
+
+- **Raspberry Pi 4 Model B** (hoặc các máy tính nhúng khác như Jetson Nano, Raspberry Pi 5,...)
+- **Camera USB Logitech C270** (hoặc các loại camera USB khác có thể tích hợp)
+- **Thẻ nhớ SD tối thiểu 8GB**
+- **Nguồn cấp tối thiểu 5VDC 3A**
+
+---
+
+## 2. Cài đặt thư viện trên Raspberry Pi 4
+
+Sử dụng python3 và pip để cài đặt các thư viện cần thiết:
+
+pip install ultralytics==8.3.78 google-api-python-client google-auth-httplib2 google-auth-oauthlib opencv-python flask
+
+text
+
+---
+
+## 3. Thiết lập Google Drive API
+
+1. Truy cập Google Cloud Console:
+   - Vào **APIs & Services** → **Enabled APIs & services** → **Enable APIs**
+   - Tìm và kích hoạt **Google Drive API**
+
+2. Cấu hình màn hình OAuth consent screen:
+   - Chọn **External**
+   - Nhấn **Create**
+   - Điền các thông tin cần thiết: 
+     - App name
+     - User support email
+     - Developer contact email
+   - Nhấn **Save and Continue**
+
+3. Tạo Credentials:
+   - Vào **Credentials** → **Create Credentials** → **OAuth client ID**
+   - Application type: **Desktop app**
+   - Nhấn **Create**
+   - Tải file JSON (chứa client secrets), lưu vào thư mục làm việc
+
+---
+
+## 4. Khởi chạy script lấy token Google Drive lần đầu
+
+Chạy script `uptodrive.py` để xác thực và lấy token truy cập Google Drive lần đầu.
+
+---
+
+## 5. Upload các file lên Raspberry Pi
+
+Sử dụng lệnh `scp` để gửi file từ máy tính tới Raspberry Pi:
+
+scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
+
+text
+
+Ví dụ:
+
+scp detectwebv3.py pi@192.168.1.20:/home/pi/
+scp uptodrive.py pi@192.168.1.20:/home/pi/
+
+text
+
+---
+
+## 6. Tạo systemd Service để tự động chạy script khi khởi động
+
+### 6.1. Tạo file service
+
+Mở file cấu hình service:
+
+sudo nano /etc/systemd/system/myservice.service
+
+text
+
+### 6.2. Dán đoạn cấu hình sau vào:
 
 [Unit]
 Description=Test autorun Python script
@@ -33,82 +94,56 @@ User=pi
 [Install]
 WantedBy=multi-user.target
 
+text
 
+### Giải thích cấu hình:
 
-##### giải thích:
--📌 Phần [Unit]
--[Unit]
--Description=Test autorun Python script
--After=network.target
+- `[Unit]`
+  - **Description**: mô tả service giúp dễ nhận biết.
+  - **After=network.target**: chạy service sau khi mạng được kích hoạt (quan trọng nếu script cần kết nối internet).
 
+- `[Service]`
+  - **WorkingDirectory**: thư mục làm việc hiện tại, tránh lỗi khi đọc/ghi file không dùng đường dẫn tuyệt đối.
+  - **ExecStart**: lệnh chạy script, ở đây chạy Python trong virtual environment (`venv`).
+  - **Environment**:
+    - `PYTHONPATH` giúp Python biết đường dẫn import các module trong dự án.
+    - `PATH` ưu tiên tìm kiếm lệnh trong `venv`.
+  - **Restart=always**: tự động restart nếu script bị crash, giúp duy trì hoạt động liên tục.
+  - **User=pi**: chạy dưới quyền user `pi`, an toàn và tránh lỗi quyền.
 
--Description → mô tả service, chỉ để bạn dễ phân biệt khi chạy systemctl list-units.
+- `[Install]`
+  - **WantedBy=multi-user.target**: service sẽ tự động khởi động khi boot vào chế độ multi-user (chế độ thường dùng).
 
--After=network.target → chỉ ra rằng service sẽ chạy sau khi mạng khởi động xong. Cái này quan trọng nếu script cần WiFi hoặc Internet.
+---
 
--👉 Chỗ quan trọng: After rất hữu ích cho các script cần kết nối mạng/MQTT. Nếu không cần, có thể bỏ.
+## 7. Quản lý Service
 
--📌 Phần [Service]
--WorkingDirectory=/home/pi/yolo
+### 7.1. Reload lại daemon systemd để nhận service mới
 
+sudo systemctl daemon-reload
 
--Thư mục hiện tại khi chạy service.
+text
 
--Quan trọng vì nếu script đọc/ghi file mà không dùng đường dẫn tuyệt đối thì sẽ lỗi nếu không set.
+### 7.2. Khởi chạy service ngay mà không cần reboot
 
--ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
+sudo systemctl start myservice.service
 
+text
 
--Đây là lệnh chính để chạy script.
+### 7.3. Kiểm tra trạng thái service
 
--venv/bin/python nghĩa là chạy bằng Python trong virtual environment (venv), thay vì Python hệ thống.
+sudo systemctl status myservice.service
 
--Quan trọng vì đảm bảo script chạy đúng môi trường, đúng thư viện đã cài trong venv.
+text
 
--Environment="PYTHONPATH=/home/pi/yolo"
+### 7.4. Xem log chi tiết nếu bị lỗi (xem 50 dòng cuối)
 
+sudo journalctl -u myservice.service -n 50 --no-pager
 
--Thiết lập biến môi trường PYTHONPATH, để Python biết tìm module trong /home/pi/yolo.
+text
 
--Quan trọng nếu bạn import module từ project của mình.
+---
 
--Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
+# Kết luận
 
-
--Ghi đè PATH, để đảm bảo khi script gọi lệnh ngoài (ví dụ ffmpeg, git, …) thì nó dùng phiên bản trong venv trước tiên.
-
--Quan trọng nếu bạn cần công cụ đã cài riêng trong venv.
-
--Restart=always
-
-
--Nếu script bị crash thì service sẽ tự khởi động lại.
-
--Đây là điểm rất quan trọng để đảm bảo script luôn sống.
-
--User=pi
-
-
--Chạy service dưới quyền user pi, thay vì root.
-
--Quan trọng vì chạy dưới root có thể gây lỗi quyền hoặc không an toàn.
-
--📌 Phần [Install]
--[Install]
--WantedBy=multi-user.target
-
-
--Xác định khi nào service được kích hoạt.
-
--multi-user.target = chạy ở chế độ multi-user (mặc định sau khi boot xong).
-
--Đây là điều làm cho service tự động chạy khi reboot
-#### kiểm tra:
-- 1. reload lại systemd để nó nhận service mới: sudo systemctl daemon-reload  
-
-- 2. chạy service ngay lập tức (không cần reboot): sudo systemctl start test_autorun.service  
-
-- 3. kiểm tra trạng thái: sudo systemctl status test_autorun.service
-  
-- 4. Nếu thấy failed thì dùng thêm lệnh này để coi log lỗi chi tiết:
--sudo journalctl -u test_autorun.service -n 50 --no-pager
+Tài liệu trên tổng hợp các bước chuẩn bị phần cứng, cài đặt phần mềm, thiết lập Google Drive API cũng như cấu hình systemd service giúp tự động chạy ứng dụng streaming camera Logitech C270 với YOLOv11s và Flask trên Raspberry Pi 4, đồng thời upload ảnh lên Google Drive một cách tự động, giúp dễ dàng triển khai và quản lý ứng dụng của bạn.
