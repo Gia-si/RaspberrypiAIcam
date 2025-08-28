@@ -17,8 +17,6 @@ Sử dụng python3 và pip để cài đặt các thư viện cần thiết:
 
 pip install ultralytics==8.3.78 google-api-python-client google-auth-httplib2 google-auth-oauthlib opencv-python flask
 
-text
-
 ---
 
 ## 3. Thiết lập Google Drive API
@@ -56,14 +54,10 @@ Sử dụng lệnh `scp` để gửi file từ máy tính tới Raspberry Pi:
 
 scp <đường_dẫn_file_trên_máy> pi@<IP_của_Pi>:<đường_dẫn_lưu_trên_Pi>
 
-text
-
 Ví dụ:
 
 scp detectwebv3.py pi@192.168.1.20:/home/pi/
 scp uptodrive.py pi@192.168.1.20:/home/pi/
-
-text
 
 ---
 
@@ -74,8 +68,6 @@ text
 Mở file cấu hình service:
 
 sudo nano /etc/systemd/system/myservice.service
-
-text
 
 ### 6.2. Dán đoạn cấu hình sau vào:
 
@@ -94,7 +86,6 @@ User=pi
 [Install]
 WantedBy=multi-user.target
 
-text
 
 ### Giải thích cấu hình:
 
@@ -122,25 +113,21 @@ text
 
 sudo systemctl daemon-reload
 
-text
 
 ### 7.2. Khởi chạy service ngay mà không cần reboot
 
 sudo systemctl start myservice.service
 
-text
 
 ### 7.3. Kiểm tra trạng thái service
 
 sudo systemctl status myservice.service
 
-text
 
 ### 7.4. Xem log chi tiết nếu bị lỗi (xem 50 dòng cuối)
 
 sudo journalctl -u myservice.service -n 50 --no-pager
 
-text
 
 ---
 
