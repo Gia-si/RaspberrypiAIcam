@@ -18,20 +18,21 @@
 #### 5. tạo service: sudo nano /etc/systemd/system/myservice.service và thêm code này vào:
 <img width="527" height="315" alt="image" src="https://github.com/user-attachments/assets/b64dc1f9-6ea8-46d6-ab32-14f2423489f8" />
 
--[Unit]
--Description=Test autorun Python script
--After=network.target
+[Unit]
+Description=Test autorun Python script
+After=network.target
 
--[Service]
--WorkingDirectory=/home/pi/yolo
--ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
--Environment="PYTHONPATH=/home/pi/yolo"
--Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
--Restart=always
--User=pi
+[Service]
+WorkingDirectory=/home/pi/yolo
+ExecStart=/home/pi/yolo/venv/bin/python /home/pi/yolo/detectwebv3.py
+Environment="PYTHONPATH=/home/pi/yolo"
+Environment="PATH=/home/pi/yolo/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Restart=always
+User=pi
 
--[Install]
--WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
+
 
 
 ##### giải thích:
