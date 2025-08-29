@@ -118,17 +118,21 @@ sudo systemctl daemon-reload
 
 ### 7.2. Khởi chạy service ngay mà không cần reboot
 
-sudo systemctl start myservice.service
+sudo systemctl start test_autorun.service
 
 
 ### 7.3. Kiểm tra trạng thái service
 
-sudo systemctl status myservice.service
+sudo systemctl status test_autorun.service
 
 
 ### 7.4. Xem log chi tiết nếu bị lỗi (xem 50 dòng cuối)
 
-sudo journalctl -u myservice.service -n 50 --no-pager
+sudo journalctl -u test_autorun.service -n 50 --no-pager
+
+### 7.5. dừng service
+
+sudo systemctl stop test_autorun.service
 
 
 ---
