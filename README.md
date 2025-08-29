@@ -134,7 +134,8 @@ sudo journalctl -u test_autorun.service -n 50 --no-pager
 
 sudo systemctl stop test_autorun.service
 
-
+---
+#Lưu ý: token sẽ hết hạn sau một thời gian nên cần lên lấy lại
 ---
 
 # Kết luận
