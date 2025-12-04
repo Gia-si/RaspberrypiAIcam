@@ -69,7 +69,7 @@ scp uptodrive.py pi@192.168.1.20:/home/pi/
 
 Mở file cấu hình service:
 
-sudo nano /etc/systemd/system/myservice.service
+sudo nano /etc/systemd/system/test_autorun.service
 
 ### 6.2. Dán đoạn cấu hình sau vào:
 
